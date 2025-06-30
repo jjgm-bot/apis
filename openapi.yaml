@@ -3,38 +3,137 @@ info:
   title: PUCE Banner Data API
   version: "1.0.0"
   description: >
-    Especificación OpenAPI para los servicios de lectura que alimentan la
-    integración Zoho ↔ Banner. Incluye programas académicos, períodos y catálogos.
+    Especificación OpenAPI para servicios de lectura del sistema Banner.
+    Incluye programas académicos, períodos académicos y catálogos generales
+    utilizados en procesos académicos y administrativos.
+
 servers:
   - url: https://pucewsd.puce.edu.ec
+
 paths:
   /banner/data/academicprograms:
     get:
       summary: Obtener programas académicos por campus
+      description: >
+        Retorna los programas académicos vigentes por campus,
+        detallando facultad, modalidad, nivel y descripción.
       parameters:
         - name: id
           in: query
           required: true
+          description: Código del campus (ej: IBA, QUI)
           schema:
             type: string
       responses:
         '200':
           description: Lista de programas académicos
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AcademicProgram'
+
   /banner/data/academicperiods:
     get:
       summary: Listar períodos académicos
+      description: >
+        Lista los períodos académicos recientes,
+        excluyendo códigos de prueba (ej: 99_%) y ordenados por fecha.
       responses:
         '200':
           description: Lista de períodos académicos
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AcademicPeriod'
+
   /banner/data/getdata:
     get:
-      summary: Obtener catálogos de referencia
+      summary: Obtener datos de catálogos
+      description: >
+        Consulta los catálogos generales para validaciones o sincronizaciones.
       parameters:
         - name: type
           in: query
           required: true
+          description: Tipo de catálogo a consultar. Ejemplos:
+            - typesLegacy
+            - ethnicity
+            - maritalStatus
+            - gender
+            - citizenship
+            - typesAddress
+            - states
+            - countries
+            - postalCodes
+            - residence
+            - nationality
+            - emailType
+            - phoneType
+            - disability
+            - educationalInstitution
+            - academicLevels
+            - campus
+            - schools
+            - typesAdmission
+            - typesAcademicStatus
           schema:
             type: string
       responses:
         '200':
-          description: Lista de elementos de catálogo
+          description: Lista de elementos del catálogo solicitado
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CatalogItem'
+
+components:
+  schemas:
+    AcademicProgram:
+      type: object
+      properties:
+        code:
+          type: string
+          description: Código del programa
+        name:
+          type: string
+          description: Nombre del programa académico
+        campus:
+          type: string
+        level:
+          type: string
+        faculty:
+          type: string
+        degree:
+          type: string
+        institution:
+          type: string
+
+    AcademicPeriod:
+      type: object
+      properties:
+        code:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        start_date:
+          type: string
+          format: date
+        end_date:
+          type: string
+          format: date
+
+    CatalogItem:
+      type: object
+      properties:
+        code:
+          type: string
+        description:
+          type: string
