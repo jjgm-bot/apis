@@ -1,0 +1,119 @@
+openapi: 3.0.3
+info:
+  title: PUCE Banner Data API
+  version: "1.0.0"
+  description: >
+    Especificación OpenAPI para los servicios de lectura que alimentan la
+    integración Zoho ↔ Banner.  
+    Incluye:
+      • Programas académicos por campus  
+      • Períodos académicos vigentes  
+      • Catálogos de referencia (20 tipos)
+
+servers:
+  - url: https://pucewsd.puce.edu.ec
+
+paths:
+  /banner/data/academicprograms:
+    get:
+      summary: Obtener programas académicos por campus
+      tags: [Academic Programs]
+      parameters:
+        - name: id
+          in: query
+          description: Código de campus (ej. IBA, QUI, AMB)
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Lista de programas académicos
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/AcademicProgram"
+
+  /banner/data/academicperiods:
+    get:
+      summary: Listar períodos académicos vigentes
+      tags: [Academic Periods]
+      responses:
+        "200":
+          description: Periodos académicos
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/AcademicPeriod"
+
+  /banner/data/getdata:
+    get:
+      summary: Consultar catálogos de referencia
+      tags: [Catalogs]
+      parameters:
+        - name: type
+          in: query
+          description: Catálogo a consultar
+          required: true
+          schema:
+            type: string
+            enum:
+              - typesLegacy
+              - ethnicity
+              - maritalStatus
+              - gender
+              - citizenship
+              - typesAddress
+              - states
+              - countries
+              - postalCodes
+              - residence
+              - nationality
+              - emailType
+              - phoneType
+              - disability
+              - educationalInstitution
+              - academicLevels
+              - campus
+              - schools
+              - typesAdmission
+              - typesAcademicStatus
+      responses:
+        "200":
+          description: Elementos del catálogo
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CatalogItem"
+
+components:
+  schemas:
+    AcademicProgram:
+      type: object
+      properties:
+        code:         { type: string, description: Código del programa }
+        description:  { type: string }
+        campus:       { type: string }
+        level:        { type: string }
+        faculty:      { type: string }
+        area:         { type: string }
+        modality:     { type: string }
+
+    AcademicPeriod:
+      type: object
+      properties:
+        code:        { type: string }
+        description: { type: string }
+        startDate:   { type: string, format: date }
+        endDate:     { type: string, format: date }
+
+    CatalogItem:
+      type: object
+      properties:
+        code:        { type: string }
+        description: { type: string }
