@@ -3,20 +3,27 @@ info:
   title: PUCE Banner Data API
   version: "1.0.0"
   description: >
-    Especificación OpenAPI para servicios de lectura del sistema Banner.
-    Incluye programas académicos, períodos académicos y catálogos generales
-    utilizados en procesos académicos y administrativos.
+    API de lectura que proporciona datos del sistema Banner: programas académicos, períodos y catálogos de referencia.
 
 servers:
   - url: https://pucewsd.puce.edu.ec
 
+tags:
+  - name: Programas Académicos
+    description: Servicios relacionados con la consulta de programas académicos por campus
+  - name: Períodos Académicos
+    description: Servicios para obtener los períodos académicos recientes
+  - name: Catálogos Generales
+    description: Catálogos de referencia utilizados en formularios, validaciones y sincronización de datos
+
 paths:
   /banner/data/academicprograms:
     get:
+      tags:
+        - Programas Académicos
       summary: Obtener programas académicos por campus
       description: >
-        Retorna los programas académicos vigentes por campus,
-        detallando facultad, modalidad, nivel y descripción.
+        Retorna los programas académicos vigentes por campus, detallando facultad, modalidad, nivel y descripción.
       parameters:
         - name: id
           in: query
@@ -33,13 +40,20 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/AcademicProgram'
+        '400':
+          description: Parámetro requerido ausente o inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
 
   /banner/data/academicperiods:
     get:
+      tags:
+        - Períodos Académicos
       summary: Listar períodos académicos
       description: >
-        Lista los períodos académicos recientes,
-        excluyendo códigos de prueba (ej: 99_%) y ordenados por fecha.
+        Lista los períodos académicos recientes, excluyendo códigos de prueba (como 99_%).
       responses:
         '200':
           description: Lista de períodos académicos
@@ -52,34 +66,27 @@ paths:
 
   /banner/data/getdata:
     get:
-      summary: Obtener datos de catálogos
+      tags:
+        - Catálogos Generales
+      summary: Obtener catálogos de referencia
       description: >
-        Consulta los catálogos generales para validaciones o sincronizaciones.
+        Retorna elementos de catálogo utilizados en registros personales o académicos.
+        Ejemplos de tipo:
+        - typesLegacy
+        - maritalStatus
+        - ethnicity
+        - gender
+        - nationality
+        - emailType
+        - campus
+        - schools
+        - disability
+        - etc.
       parameters:
         - name: type
           in: query
           required: true
-          description: Tipo de catálogo a consultar. Ejemplos:
-            - typesLegacy
-            - ethnicity
-            - maritalStatus
-            - gender
-            - citizenship
-            - typesAddress
-            - states
-            - countries
-            - postalCodes
-            - residence
-            - nationality
-            - emailType
-            - phoneType
-            - disability
-            - educationalInstitution
-            - academicLevels
-            - campus
-            - schools
-            - typesAdmission
-            - typesAcademicStatus
+          description: Tipo de catálogo a consultar
           schema:
             type: string
       responses:
@@ -91,6 +98,12 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/CatalogItem'
+        '400':
+          description: Parámetro requerido ausente o inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
 
 components:
   schemas:
@@ -119,21 +132,38 @@ components:
       properties:
         code:
           type: string
+          example: 202501
         name:
           type: string
+          example: 2025-01
         description:
           type: string
+          example: Primer Período 2025
         start_date:
           type: string
           format: date
+          example: 2025-03-01
         end_date:
           type: string
           format: date
+          example: 2025-07-31
 
     CatalogItem:
       type: object
       properties:
         code:
           type: string
+          example: STVETHN
         description:
           type: string
+          example: Etnias
+        title:
+          type: string
+          example: Grupo étnico
+
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+          example: Parámetro "type" faltante
